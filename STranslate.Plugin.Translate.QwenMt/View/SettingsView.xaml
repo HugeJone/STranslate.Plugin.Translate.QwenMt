@@ -94,54 +94,64 @@
             <ui:SettingsExpander.HeaderIcon>
                 <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Globe_24_Regular}" />
             </ui:SettingsExpander.HeaderIcon>
-            <WrapPanel Orientation="Horizontal">
-                <Button
-                    Command="{Binding TermsAddCommand}"
-                    Content="{DynamicResource STranslate_Plugin_Translate_QwenMt_Term_Add}"
-                    IsEnabled="{Binding IsEnableTerms}" />
-                <Button
-                    Command="{Binding TermsDeleteCommand}"
-                    CommandParameter="{Binding ElementName=PART_DataGrid, Path=SelectedItem}"
-                    Content="{DynamicResource STranslate_Plugin_Translate_QwenMt_Term_Delete}"
-                    IsEnabled="{Binding IsEnableTerms}" />
-                <Button
-                    Command="{Binding TermsClearCommand}"
-                    Content="{DynamicResource STranslate_Plugin_Translate_QwenMt_Terms_Clear}"
-                    IsEnabled="{Binding IsEnableTerms}" />
-                <Button
-                    Command="{Binding TermsExportCommand}"
-                    Content="{DynamicResource STranslate_Plugin_Translate_QwenMt_Terms_Export}"
-                    IsEnabled="{Binding IsEnableTerms}" />
-                <Button
-                    Command="{Binding TermsImportCommand}"
-                    Content="{DynamicResource STranslate_Plugin_Translate_QwenMt_Terms_Import}"
-                    IsEnabled="{Binding IsEnableTerms}" />
-                <ui:ToggleSwitch
-                    Margin="4,0,0,0"
-                    IsOn="{Binding IsEnableTerms}"
-                    OffContent="{DynamicResource Off}"
-                    OnContent="{DynamicResource On}" />
-            </WrapPanel>
+
+            <ui:ToggleSwitch
+                IsOn="{Binding IsEnableTerms}"
+                OffContent="{DynamicResource Off}"
+                OnContent="{DynamicResource On}" />
 
             <ui:SettingsExpander.Items>
-                <ui:SettingsCard Padding="{DynamicResource SettingsCardPadding}" IsEnabled="{Binding IsEnableTerms}">
-                    <DataGrid
-                        x:Name="PART_DataGrid"
-                        AutoGenerateColumns="False"
-                        CanUserAddRows="False"
-                        CanUserDeleteRows="False"
-                        ItemsSource="{Binding Terms}">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn
-                                Width="*"
-                                Binding="{Binding SourceText}"
-                                Header="{DynamicResource STranslate_Plugin_Translate_QwenMt_Term_Source}" />
-                            <DataGridTextColumn
-                                Width="*"
-                                Binding="{Binding TargetText}"
-                                Header="{DynamicResource STranslate_Plugin_Translate_QwenMt_Term_Target}" />
-                        </DataGrid.Columns>
-                    </DataGrid>
+                <ui:SettingsCard Padding="2" IsEnabled="{Binding IsEnableTerms}">
+                    <ui:SettingsCard.Header>
+                        <WrapPanel Orientation="Horizontal">
+                            <Button
+                                Command="{Binding TermsExportCommand}"
+                                Content="{DynamicResource STranslate_Plugin_Translate_QwenMt_Terms_Export}"
+                                IsEnabled="{Binding IsEnableTerms}" />
+                            <Button
+                                Command="{Binding TermsImportCommand}"
+                                Content="{DynamicResource STranslate_Plugin_Translate_QwenMt_Terms_Import}"
+                                IsEnabled="{Binding IsEnableTerms}" />
+                            <Button
+                                Margin="20,0,0,0"
+                                Command="{Binding TermsClearCommand}"
+                                Content="{DynamicResource STranslate_Plugin_Translate_QwenMt_Terms_Clear}"
+                                IsEnabled="{Binding IsEnableTerms}" />
+                        </WrapPanel>
+                    </ui:SettingsCard.Header>
+                </ui:SettingsCard>
+                <ui:SettingsCard Padding="2" IsEnabled="{Binding IsEnableTerms}">
+                    <ui:SettingsCard.Header>
+                        <DataGrid
+                            x:Name="PART_DataGrid"
+                            AutoGenerateColumns="False"
+                            ItemsSource="{Binding Terms}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn
+                                    Width="*"
+                                    Binding="{Binding SourceText}"
+                                    Header="{DynamicResource STranslate_Plugin_Translate_QwenMt_Term_Source}" />
+                                <DataGridTextColumn
+                                    Width="*"
+                                    Binding="{Binding TargetText}"
+                                    Header="{DynamicResource STranslate_Plugin_Translate_QwenMt_Term_Target}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </ui:SettingsCard.Header>
+                </ui:SettingsCard>
+                <ui:SettingsCard Padding="2" IsEnabled="{Binding IsEnableTerms}">
+                    <ui:SettingsCard.Header>
+                        <WrapPanel Orientation="Horizontal">
+                            <Button
+                                Command="{Binding TermsAddCommand}"
+                                Content="{DynamicResource STranslate_Plugin_Translate_QwenMt_Term_Add}"
+                                Style="{DynamicResource AccentButtonStyle}" />
+                            <Button
+                                Command="{Binding TermsDeleteCommand}"
+                                CommandParameter="{Binding ElementName=PART_DataGrid, Path=SelectedItems}"
+                                Content="{DynamicResource STranslate_Plugin_Translate_QwenMt_Term_Delete}" />
+                        </WrapPanel>
+                    </ui:SettingsCard.Header>
                 </ui:SettingsCard>
             </ui:SettingsExpander.Items>
         </ui:SettingsExpander>

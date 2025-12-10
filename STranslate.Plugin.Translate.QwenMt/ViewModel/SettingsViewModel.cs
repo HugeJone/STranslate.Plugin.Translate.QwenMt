@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using ObservableCollections;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -51,22 +52,16 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
 
     private void OnTermsCollectionChanged(in NotifyCollectionChangedEventArgs<Term> e)
     {
-        if (!e.NewItems.IsEmpty)
+        e.NewItem?.PropertyChanged += OnTermPropertyChanged;
+        e.OldItem?.PropertyChanged -= OnTermPropertyChanged;
+        foreach (var item in e.NewItems)
         {
-            foreach (var item in e.NewItems)
-            {
-                item.PropertyChanged += OnTermPropertyChanged;
-            }
+            item.PropertyChanged += OnTermPropertyChanged;
         }
-
-        if (!e.OldItems.IsEmpty)
+        foreach (var item in e.OldItems)
         {
-            foreach (var item in e.OldItems)
-            {
-                item.PropertyChanged -= OnTermPropertyChanged;
-            }
+            item.PropertyChanged -= OnTermPropertyChanged;
         }
-
         _settings.Terms = [.. _items];
         _context.SaveSettingStorage<Settings>();
     }
@@ -144,11 +139,16 @@ public partial class SettingsViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
-    private void TermsDelete(Term term)
+    private void TermsDelete(IList list)
     {
-        if (term != null)
+        if (list.Count == 0)
+            return;
+
+        var tmp = list.Cast<Term>().ToList();
+
+        foreach (var item in tmp)
         {
-            _items.Remove(term);
+            _items.Remove(item);
         }
     }
 
