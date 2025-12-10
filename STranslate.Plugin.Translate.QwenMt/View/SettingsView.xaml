@@ -22,7 +22,7 @@
             <PasswordBox
                 MinWidth="300"
                 plugin:PasswordBoxAssistant.Attach="True"
-                plugin:PasswordBoxAssistant.Password="{Binding Settings.ApiKey}"
+                plugin:PasswordBoxAssistant.Password="{Binding ApiKey}"
                 ui:ControlHelper.PlaceholderText="{DynamicResource STranslate_Plugin_Translate_QwenMt_ApiKey_Placeholder}" />
         </ui:SettingsCard>
 
@@ -33,8 +33,8 @@
             <ComboBox
                 MinWidth="200"
                 IsEditable="True"
-                ItemsSource="{Binding Settings.Models}"
-                SelectedItem="{Binding Settings.Model, Mode=TwoWay}">
+                ItemsSource="{Binding Models}"
+                SelectedItem="{Binding Model, Mode=TwoWay}">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="LostFocus">
                         <i:InvokeCommandAction Command="{Binding AddModelCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ComboBox}, Path=Text}" />
@@ -76,13 +76,13 @@
                 <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Globe_24_Regular}" />
             </ui:SettingsExpander.HeaderIcon>
             <ui:ToggleSwitch
-                IsOn="{Binding Settings.IsEnableDomains}"
+                IsOn="{Binding IsEnableDomains}"
                 OffContent="{DynamicResource Off}"
                 OnContent="{DynamicResource On}" />
 
             <ui:SettingsExpander.Items>
-                <ui:SettingsCard Header="{DynamicResource STranslate_Plugin_Translate_QwenMt_Domains_Content}" IsEnabled="{Binding Settings.IsEnableDomains}">
-                    <TextBox Text="{Binding Settings.Domains}" />
+                <ui:SettingsCard Header="{DynamicResource STranslate_Plugin_Translate_QwenMt_Domains_Content}" IsEnabled="{Binding IsEnableDomains}">
+                    <TextBox Text="{Binding Domains}" />
                 </ui:SettingsCard>
                 <ui:SettingsCard>
                     <ui:HyperlinkButton Content="{DynamicResource STranslate_Plugin_Translate_QwenMt_Domains_Website}" NavigateUri="https://help.aliyun.com/zh/model-studio/machine-translation#68bea60b03i3z" />
@@ -98,39 +98,39 @@
                 <Button
                     Command="{Binding TermsAddCommand}"
                     Content="{DynamicResource STranslate_Plugin_Translate_QwenMt_Term_Add}"
-                    IsEnabled="{Binding Settings.IsEnableTerms}" />
+                    IsEnabled="{Binding IsEnableTerms}" />
                 <Button
                     Command="{Binding TermsDeleteCommand}"
                     CommandParameter="{Binding ElementName=PART_DataGrid, Path=SelectedItem}"
                     Content="{DynamicResource STranslate_Plugin_Translate_QwenMt_Term_Delete}"
-                    IsEnabled="{Binding Settings.IsEnableTerms}" />
+                    IsEnabled="{Binding IsEnableTerms}" />
                 <Button
                     Command="{Binding TermsClearCommand}"
                     Content="{DynamicResource STranslate_Plugin_Translate_QwenMt_Terms_Clear}"
-                    IsEnabled="{Binding Settings.IsEnableTerms}" />
+                    IsEnabled="{Binding IsEnableTerms}" />
                 <Button
                     Command="{Binding TermsExportCommand}"
                     Content="{DynamicResource STranslate_Plugin_Translate_QwenMt_Terms_Export}"
-                    IsEnabled="{Binding Settings.IsEnableTerms}" />
+                    IsEnabled="{Binding IsEnableTerms}" />
                 <Button
                     Command="{Binding TermsImportCommand}"
                     Content="{DynamicResource STranslate_Plugin_Translate_QwenMt_Terms_Import}"
-                    IsEnabled="{Binding Settings.IsEnableTerms}" />
+                    IsEnabled="{Binding IsEnableTerms}" />
                 <ui:ToggleSwitch
                     Margin="4,0,0,0"
-                    IsOn="{Binding Settings.IsEnableTerms}"
+                    IsOn="{Binding IsEnableTerms}"
                     OffContent="{DynamicResource Off}"
                     OnContent="{DynamicResource On}" />
             </WrapPanel>
 
             <ui:SettingsExpander.Items>
-                <ui:SettingsCard Padding="{DynamicResource SettingsCardPadding}" IsEnabled="{Binding Settings.IsEnableTerms}">
+                <ui:SettingsCard Padding="{DynamicResource SettingsCardPadding}" IsEnabled="{Binding IsEnableTerms}">
                     <DataGrid
                         x:Name="PART_DataGrid"
                         AutoGenerateColumns="False"
                         CanUserAddRows="False"
                         CanUserDeleteRows="False"
-                        ItemsSource="{Binding Settings.Terms}">
+                        ItemsSource="{Binding Terms}">
                         <DataGrid.Columns>
                             <DataGridTextColumn
                                 Width="*"

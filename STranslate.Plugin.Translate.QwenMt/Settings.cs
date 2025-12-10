@@ -1,41 +1,48 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace STranslate.Plugin.Translate.QwenMt;
 
-public partial class Settings : ObservableObject
+public class Settings
 {
-    [ObservableProperty] public partial string ApiKey { get; set; } = string.Empty;
+    public string ApiKey { get; set; } = string.Empty;
 
-    [ObservableProperty] public partial string Model { get; set; } = "qwen-mt-turbo";
+    public string Model { get; set; } = "qwen-mt-turbo";
 
-    [ObservableProperty]
-    public partial ObservableCollection<string> Models { get; set; } =
+    public List<string> Models { get; set; } =
     [
         "qwen-mt-turbo",
         "qwen-mt-plus"
     ];
 
-    [ObservableProperty] public partial bool IsEnableTerms { get; set; }
+    public bool IsEnableTerms { get; set; }
 
-    [ObservableProperty] public partial bool IsEnableDomains { get; set; }
+    public bool IsEnableDomains { get; set; }
 
     /// <summary>
     ///     术语列表
     /// </summary>
-    [ObservableProperty] public partial ObservableCollection<Term> Terms { get; set; } = [];
+    public List<Term> Terms { get; set; } = [];
 
     /// <summary>
     ///     领域提示
     /// </summary>
-    [ObservableProperty] public partial string Domains { get; set; } = string.Empty;
+    public string Domains { get; set; } = string.Empty;
 }
 
 public partial class Term : ObservableObject
 {
-    [ObservableProperty]
-    public partial string SourceText { get; set; } = string.Empty;
+    [ObservableProperty] public partial string SourceText { get; set; } = string.Empty;
 
-    [ObservableProperty]
-    public partial string TargetText { get; set; } = string.Empty;
+    [ObservableProperty] public partial string TargetText { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 加上这句就可以保存了？？？
+    /// </summary>
+    /// <param name="e"></param>
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        System.Diagnostics.Debug.WriteLine($"Term.OnPropertyChanged: {e.PropertyName}");
+        base.OnPropertyChanged(e);
+    }
 }

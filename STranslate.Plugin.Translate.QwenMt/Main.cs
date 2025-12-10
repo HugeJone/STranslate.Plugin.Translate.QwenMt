@@ -109,7 +109,7 @@ public class Main : TranslatePluginBase
         Settings = context.LoadSettingStorage<Settings>();
     }
 
-    public override void Dispose() { }
+    public override void Dispose() => _viewModel?.Dispose();
 
     public override async Task TranslateAsync(TranslateRequest request, TranslateResult result, CancellationToken cancellationToken = default)
     {

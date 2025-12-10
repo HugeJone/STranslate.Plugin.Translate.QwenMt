@@ -2,90 +2,141 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
+using ObservableCollections;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.IO;
 using System.Text;
 using System.Text.Json;
 
 namespace STranslate.Plugin.Translate.QwenMt.ViewModel;
 
-public partial class SettingsViewModel : ObservableObject
+public partial class SettingsViewModel : ObservableObject, IDisposable
 {
     private readonly IPluginContext _context;
+    private readonly Settings _settings;
     private bool _isUpdating = false;
-
-    public Settings Settings { get; }
 
     public SettingsViewModel(IPluginContext context, Settings settings)
     {
         _context = context;
-        Settings = settings;
-        Settings.PropertyChanged += (s, e) =>
+        _settings = settings;
+
+        ApiKey = settings.ApiKey;
+        Model = settings.Model;
+        Models = [.. settings.Models];
+        IsEnableTerms = settings.IsEnableTerms;
+        IsEnableDomains = settings.IsEnableDomains;
+        Domains = settings.Domains;
+        _items = [.. settings.Terms];
+        Terms = _items.ToNotifyCollectionChanged();
+
+        PropertyChanged += OnPropertyChanged;
+        Models.CollectionChanged += OnModelsCollectionChanged;
+        _items.CollectionChanged += OnTermsCollectionChanged;
+
+        foreach (var item in _items)
         {
-            _context.SaveSettingStorage<Settings>();
-        };
-        Settings.Models.CollectionChanged += (s, e) =>
-        {
-            _context.SaveSettingStorage<Settings>();
-        };
-        Settings.Terms.CollectionChanged += (s, e) =>
-        {
-            _context.SaveSettingStorage<Settings>();
-        };
-        Settings.Terms.CollectionChanged += (s, e) =>
-        {
-            if (e.OldItems != null)
-            {
-                foreach (Term item in e.OldItems)
-                {
-                    item.PropertyChanged -= Term_PropertyChanged;
-                }
-            }
-            if (e.NewItems != null)
-            {
-                foreach (Term item in e.NewItems)
-                {
-                    item.PropertyChanged += Term_PropertyChanged;
-                }
-            }
-        };
+            item.PropertyChanged += OnTermPropertyChanged;
+        }
     }
 
-    private void Term_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    private void OnTermPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        // 当 Term 的属性发生变化时保存设置
+        _settings.Terms = [.. _items];
+        _context.SaveSettingStorage<Settings>();
+    }
+
+    private void OnTermsCollectionChanged(in NotifyCollectionChangedEventArgs<Term> e)
+    {
+        if (!e.NewItems.IsEmpty)
+        {
+            foreach (var item in e.NewItems)
+            {
+                item.PropertyChanged += OnTermPropertyChanged;
+            }
+        }
+
+        if (!e.OldItems.IsEmpty)
+        {
+            foreach (var item in e.OldItems)
+            {
+                item.PropertyChanged -= OnTermPropertyChanged;
+            }
+        }
+
+        _settings.Terms = [.. _items];
+        _context.SaveSettingStorage<Settings>();
+    }
+
+    private void OnModelsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.Action is NotifyCollectionChangedAction.Add or
+                       NotifyCollectionChangedAction.Remove or
+                       NotifyCollectionChangedAction.Replace)
+        {
+            _settings.Models = [.. Models];
+            _context.SaveSettingStorage<Settings>();
+        }
+    }
+
+    private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        switch (e.PropertyName)
+        {
+            case nameof(ApiKey):
+                _settings.ApiKey = ApiKey;
+                break;
+            case nameof(Model):
+                _settings.Model = Model ?? string.Empty;
+                break;
+            case nameof(IsEnableTerms):
+                _settings.IsEnableTerms = IsEnableTerms;
+                break;
+            case nameof(IsEnableDomains):
+                _settings.IsEnableDomains = IsEnableDomains;
+                break;
+            case nameof(Domains):
+                _settings.Domains = Domains;
+                break;
+            default:
+                return;
+        }
         _context.SaveSettingStorage<Settings>();
     }
 
     [RelayCommand]
     private void AddModel(string model)
     {
-        if (_isUpdating || string.IsNullOrWhiteSpace(model) || Settings.Models.Contains(model))
+        if (_isUpdating || string.IsNullOrWhiteSpace(model) || Models.Contains(model))
             return;
 
         using var _ = new UpdateGuard(this);
 
-        Settings.Models.Add(model);
-        Settings.Model = model;
+        Models.Add(model);
+        Model = model;
     }
 
     [RelayCommand]
     private void DeleteModel(string model)
     {
-        if (_isUpdating || !Settings.Models.Contains(model))
+        if (_isUpdating || !Models.Contains(model))
             return;
 
         using var _ = new UpdateGuard(this);
 
-        if (Settings.Model == model)
-            Settings.Model = Settings.Models.Count > 1 ? Settings.Models.First(m => m != model) : string.Empty;
+        if (Model == model)
+            Model = Models.Count > 1 ? Models.First(m => m != model) : string.Empty;
 
-        Settings.Models.Remove(model);
+        Models.Remove(model);
     }
 
     [RelayCommand]
     private void TermsAdd()
     {
-        Settings.Terms.Add(new Term
+        _items.Add(new Term
         {
             SourceText = string.Empty,
             TargetText = string.Empty
@@ -97,17 +148,17 @@ public partial class SettingsViewModel : ObservableObject
     {
         if (term != null)
         {
-            Settings.Terms.Remove(term);
+            _items.Remove(term);
         }
     }
 
     [RelayCommand]
     private void TermsClear()
     {
-        if (Settings.Terms.Count == 0)
+        if (_items.Count == 0)
             return;
 
-        Settings.Terms.Clear();
+        _items.Clear();
     }
 
     [RelayCommand]
@@ -125,7 +176,7 @@ public partial class SettingsViewModel : ObservableObject
             if (saveFileDialog.ShowDialog() != true)
                 return;
 
-            var json = JsonSerializer.Serialize(Settings.Terms, options);
+            var json = JsonSerializer.Serialize(_items, options);
 
             File.WriteAllText(saveFileDialog.FileName, json, Encoding.UTF8);
         }
@@ -150,20 +201,29 @@ public partial class SettingsViewModel : ObservableObject
                 return;
 
             var json = File.ReadAllText(openFileDialog.FileName, Encoding.UTF8);
-            var terms = JsonSerializer.Deserialize<ObservableCollection<Term>>(json);
+            var terms = JsonSerializer.Deserialize<IEnumerable<Term>>(json);
 
             if (terms != null)
             {
-                Settings.Terms.Clear();
-                foreach (var term in terms)
-                {
-                    Settings.Terms.Add(term);
-                }
+                _items.Clear();
+                _items.AddRange(terms);
             }
         }
         catch (Exception ex)
         {
             _context.Logger.LogError(ex, $"Failed to import terms: {ex.Message}");
+        }
+    }
+
+    public void Dispose()
+    {
+        PropertyChanged -= OnPropertyChanged;
+        Models.CollectionChanged -= OnModelsCollectionChanged;
+        _items.CollectionChanged -= OnTermsCollectionChanged;
+
+        foreach (var item in _items)
+        {
+            item.PropertyChanged -= OnTermPropertyChanged;
         }
     }
 
@@ -185,4 +245,27 @@ public partial class SettingsViewModel : ObservableObject
 
         public void Dispose() => _viewModel._isUpdating = false;
     }
+
+    [ObservableProperty] public partial string ApiKey { get; set; }
+
+    [ObservableProperty] public partial string Model { get; set; }
+
+    [ObservableProperty]
+    public partial ObservableCollection<string> Models { get; set; }
+
+    [ObservableProperty] public partial bool IsEnableTerms { get; set; }
+
+    [ObservableProperty] public partial bool IsEnableDomains { get; set; }
+
+    /// <summary>
+    ///     术语列表
+    /// </summary>
+    private readonly ObservableList<Term> _items;
+
+    public INotifyCollectionChangedSynchronizedViewList<Term> Terms { get; }
+
+    /// <summary>
+    ///     领域提示
+    /// </summary>
+    [ObservableProperty] public partial string Domains { get; set; }
 }
