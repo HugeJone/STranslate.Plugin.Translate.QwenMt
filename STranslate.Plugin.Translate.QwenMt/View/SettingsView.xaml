@@ -17,7 +17,7 @@
     <ikw:SimpleStackPanel Spacing="12">
         <ui:SettingsCard Description="{DynamicResource STranslate_Plugin_Translate_QwenMt_ApiKey_Description}" Header="{DynamicResource STranslate_Plugin_Translate_QwenMt_ApiKey}">
             <ui:SettingsCard.HeaderIcon>
-                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Key_24_Regular}" />
+                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Key_20_Regular}" />
             </ui:SettingsCard.HeaderIcon>
             <PasswordBox
                 MinWidth="300"
@@ -73,7 +73,7 @@
 
         <ui:SettingsExpander Header="{DynamicResource STranslate_Plugin_Translate_QwenMt_Domains}">
             <ui:SettingsExpander.HeaderIcon>
-                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Globe_24_Regular}" />
+                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.TooltipQuote_20_Regular}" />
             </ui:SettingsExpander.HeaderIcon>
             <ui:ToggleSwitch
                 IsOn="{Binding IsEnableDomains}"
@@ -92,7 +92,7 @@
 
         <ui:SettingsExpander Header="{DynamicResource STranslate_Plugin_Translate_QwenMt_Terms}">
             <ui:SettingsExpander.HeaderIcon>
-                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Globe_24_Regular}" />
+                <ui:FontIcon Icon="{x:Static ui:FluentSystemIcons.Pair_20_Regular}" />
             </ui:SettingsExpander.HeaderIcon>
 
             <ui:ToggleSwitch
